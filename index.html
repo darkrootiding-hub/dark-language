@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dark Translate Pro</title>
+    <style>
+        /* --- PROFESSIONAL CYBER-DARK THEME --- */
+        :root {
+            --bg-body: #0a0a0a;
+            --bg-card: #141414;
+            --bg-input: #1a1a1a;
+            --text-main: #e0e0e0;
+            --text-mute: #888;
+            --accent: #ff0055; /* Neon Pink */
+            --accent-dim: rgba(255, 0, 85, 0.15);
+            --border: #333;
+            --font-ui: system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            z-index: 20;
+        }
+        h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+        h1 span { color: var(--accent); font-size: 0.8em; margin-left: 5px; background: var(--accent-dim); padding: 2px 6px; border-radius: 4px; }
+        
+        .icon-btn { background: none; border: none; color: var(--text-main); font-size: 1.4rem; padding: 0.5rem; cursor: pointer; transition: 0.2s; }
+        .icon-btn:hover { color: var(--accent); transform: scale(1.1); }
+
+        /* TAB NAVIGATION */
+        .tab-bar { display: flex; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+        .tab-btn {
+            flex: 1; padding: 14px; background: transparent; border: none;
+            color: var(--text-mute); font-weight: 600; font-size: 0.9rem;
+            cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s;
+        }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(to top, var(--accent-dim), transparent); }
+
+        /* MAIN CONTENT AREA */
+        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
+        .view-section { display: none; flex-direction: column; padding: 1.5rem; gap: 1.2rem; max-width: 800px; width: 100%; margin: 0 auto; flex: 1; }
+        .view-section.active { display: flex; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .card-head {
+            padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .card-label { font-size: 0.75rem; font-weight: 700; color: var(--text-mute); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .text-area {
+            width: 100%; background: var(--bg-input); border: none; color: var(--text-main);
+            padding: 1rem; font-family: var(--font-mono); font-size: 1rem; resize: none; min-height: 120px;
+        }
+        .text-area:focus { background: #1e1e1e; }
+
+        /* IMAGE SPY UI */
+        .upload-zone {
+            padding: 2rem; border: 2px dashed var(--border); border-radius: 8px;
+            text-align: center; color: var(--text-mute); cursor: pointer; transition: 0.2s;
+            background: var(--bg-input);
+        }
+        .upload-zone:hover { border-color: var(--accent); color: var(--text-main); background: var(--accent-dim); }
+        .upload-zone.has-file { border-style: solid; border-color: #00e676; background: rgba(0, 230, 118, 0.05); }
+        
+        .preview-box { display: none; margin-top: 1rem; text-align: center; }
+        .preview-img { max-height: 200px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+
+        .capacity-bar { height: 4px; background: #333; margin-top: 10px; border-radius: 2px; overflow: hidden; display: none; }
+        .capacity-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s; }
+        .capacity-text { font-size: 0.75rem; color: var(--text-mute); margin-top: 5px; text-align: right; display: none; }
+
+        /* BUTTONS */
+        .btn-group { display: flex; gap: 8px; }
+        .action-btn {
+            padding: 4px 10px; font-size: 0.75rem; background: transparent; border: 1px solid var(--border);
+            color: var(--text-mute); border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+        .big-btn-row { display: flex; gap: 1rem; margin-top: auto; }
+        .big-btn {
+            flex: 1; padding: 14px; border-radius: 8px; border: 1px solid var(--border);
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--bg-card); color: var(--text-main); transition: 0.2s;
+        }
+        .big-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+        .btn-success { background: #00e676; border-color: #00e676; color: #000; }
+
+        /* MODALS & LOADERS */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(5px); }
+        .modal.active { display: flex; }
+        .modal-box { background: var(--bg-card); width: 100%; max-width: 450px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .modal-body { padding: 1.5rem; overflow-y: auto; max-height: 70vh; }
+        
+        #appLoader { position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
+        .loader-ring { width: 50px; height: 50px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: #fff; color: #000; padding: 10px 20px; border-radius: 50px; font-weight: 600; opacity: 0; transition: 0.3s; pointer-events: none; z-index: 200; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING SCREEN -->
+    <div id="appLoader">
+        <div class="loader-ring"></div>
+        <p style="font-family: monospace; letter-spacing: 2px;">SYSTEM_INIT</p>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <button class="icon-btn" onclick="toggleModal('mapModal')">▦</button>
+        <h1>Dark <span>PRO</span></h1>
+        <!-- Hidden theme toggle, defaulting to dark for "Pro" look -->
+        <div style="width:24px;"></div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('text')">TXT TRANSLATOR</button>
+        <button class="tab-btn" onclick="switchTab('image')">IMG STEGANOGRAPHY</button>
+    </div>
+
+    <main>
+        
+        <!-- === TAB 1: TEXT TRANSLATOR === -->
+        <div id="view-text" class="view-section active">
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-label">Input Text</span>
+                    <div class="btn-group">
+                        <button class="action-btn" onclick="pasteText()">PASTE</button>
+                        <button class="action-btn" onclick="clearAll()">CLEAR</button>
+                    </div>
+                </div>
+                <textarea id="inputBox" class="text-area" placeholder="Type or paste text here..." spellcheck="false"></textarea>
+            </div>
+
+            <div style="display:flex; justify-content:center; opacity:0.5; font-size:1.5rem;">⬇</div>
+
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-label">Result</span>
+                    <div class="btn-group">
+                        <button class="action-btn" onclick="copyResult()">COPY</button>
+                        <button class="action-btn" onclick="social('ig')">SHARE</button>
+                    </div>
+                </div>
+                <textarea id="outputBox" class="text-area" readonly placeholder="Translation appears here..." spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <!-- === TAB 2: PRO STEGANOGRAPHY === -->
+        <div id="view-image" class="view-section">
+            <!-- 1. Image Upload -->
+            <div class="card">
+                <div class="card-head"><span class="card-label">1. Carrier Image</span></div>
+                <div style="padding:1rem;">
+                    <div id="dropZone" class="upload-zone" onclick="document.getElementById('fileIn').click()">
+                        <div style="font-size:2rem; margin-bottom:10px;">📁</div>
+                        <div id="uploadText">Click to Select Image</div>
+                        <input type="file" id="fileIn" hidden accept="image/*" onchange="handleImage(this)">
+                    </div>
+                    <div class="preview-box" id="previewBox">
+                        <img id="previewImg" class="preview-img">
+                        <div class="capacity-text" id="capText">0 / 0 chars used</div>
+                        <div class="capacity-bar" id="capBar"><div class="capacity-fill" id="capFill"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Message -->
+            <div class="card" style="flex:1;">
+                <div class="card-head">
+                    <span class="card-label">2. Hidden Message</span>
+                    <button class="action-btn" onclick="document.getElementById('stegInput').value = ''">CLEAR</button>
+                </div>
+                <textarea id="stegInput" class="text-area" placeholder="Write message to hide, OR upload an image to reveal..." oninput="updateCapacity()"></textarea>
+            </div>
+
+            <!-- 3. Actions -->
+            <div class="big-btn-row">
+                <button class="big-btn" onclick="decodeLSB()">
+                    🔓 REVEAL
+                </button>
+                <button class="big-btn btn-primary" onclick="encodeLSB()">
+                    🔒 ENCODE & SAVE
+                </button>
+            </div>
+            
+            <p style="text-align:center; font-size:0.7rem; color:#555; margin-top:10px;">
+                NOTE: Send as <b>FILE</b> (Document). WhatsApp/Insta compression destroys hidden data.
+            </p>
+
+            <canvas id="stegCanvas" style="display:none;"></canvas>
+        </div>
+
+    </main>
+
+    <!-- MODALS -->
+    <div id="mapModal" class="modal"><div class="modal-box"><div class="card-head"><h3>Cipher Map</h3><button class="icon-btn" onclick="toggleModal('mapModal')">✕</button></div><div class="modal-body" id="mapContainer"></div></div></div>
+    
+    <div id="updateModal" class="modal">
+        <div class="modal-box" style="text-align:center;">
+            <div class="modal-body">
+                <h2 style="color:var(--accent); margin-bottom:10px;">UPDATE REQUIRED</h2>
+                <p id="updateNotes" style="color:var(--text-mute); margin-bottom:20px;">...</p>
+                <button class="big-btn btn-primary" onclick="proceedUpdate()">UPDATE NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lockScreen" class="modal">
+        <div class="modal-box" style="text-align:center; border-color:red;">
+            <div class="modal-body">
+                <h2 style="color:red;">ACCESS DENIED</h2>
+                <p>Old Version Detected</p>
+                <button class="big-btn" onclick="location.reload()">RELOAD</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Operation Successful</div>
+
+    <!-- SCRIPT START -->
+    <script>
+        // --- 1. CONFIGURATION ---
+        const currentAppUnicode = "UNICODE_V2_0_0"; 
+
+        // --- 2. TABS & UI LOGIC ---
+        function switchTab(tab) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- 3. FIREBASE UPDATE SYSTEM ---
+        window.unlockApp = function() {
+            const loader = document.getElementById('appLoader');
+            if (loader) {
+                loader.style.transition = "opacity 0.5s";
+                loader.style.opacity = "0";
+                setTimeout(() => { loader.style.display = "none"; }, 500);
+            }
+        };
+
+        // Fallback timer
+        setTimeout(() => { window.unlockApp(); }, 4000);
+    </script>
+
+    <!-- FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGSg1uqzJN7DS5HYa8NWyCTJqdiJ6ivHI",
+            authDomain: "land-selling-and-buying.firebaseapp.com",
+            databaseURL: "https://land-selling-and-buying-default-rtdb.firebaseio.com",
+            projectId: "land-selling-and-buying",
+            storageBucket: "land-selling-and-buying.firebasestorage.app",
+            messagingSenderId: "152144955627",
+            appId: "1:152144955627:web:5cf6c77def93a8f566d6ae"
+        };
+
+        let downloadUrl = "";
+
+        async function checkUpdates() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const db = getDatabase(app);
+                const snapshot = await get(child(ref(db), "updates"));
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    // Targeted Update Check
+                    if (data.active && data.target_unicode === currentAppUnicode) {
+                        document.getElementById('updateNotes').innerText = data.details || "Critical Security Update";
+                        downloadUrl = data.download_link;
+                        document.getElementById('appLoader').style.display = 'none';
+                        document.getElementById('updateModal').classList.add('active');
+                    } else {
+                        window.unlockApp();
+                    }
+                } else {
+                    window.unlockApp();
+                }
+            } catch (error) {
+                console.log("Offline or Firebase Error, unlocking app...");
+                window.unlockApp();
+            }
+        }
+        
+        window.proceedUpdate = function() {
+            if(downloadUrl) window.open(downloadUrl, '_blank');
+        };
+
+        if(navigator.onLine) checkUpdates();
+        else window.unlockApp();
+    </script>
+
+    <!-- CORE LOGIC (Translation & Steganography) -->
+    <script>
+        // --- TEXT TRANSLATOR ---
+        const cipherData = {'A': 'DAπ', 'B': 'ROπ', 'C': 'NPπ', 'D': '>--π', 'E': '-_>π', 'F': '*_+π', 'G': '.*.π', 'H': '<-!-π', 'I': '+->π', 'J': '{.*}π', 'K': '[+ +}π', 'L': '@©π', 'M': '£-¯π', 'N': '%∆π', 'O': '°*°π', 'P': '♡/+π', 'Q': '-$/π', 'R': '"-"π', 'S': '∆$\\π', 'T': '<∆.∆>π', 'U': '!_!π', 'V': 'TKπ', 'W': 'Aoπ', 'X': 'SUπ', 'Y': 'MHπ', 'Z': '@_/>π', 'a': 'rkπ', 'b': 'otπ', 'c': '<-.π', 'd': '-->π', 'e': '_-_π', 'f': '#_#π', 'g': ')_-(π', 'h': '>!<--π', 'i': '<- ->π', 'j': '(*, }π', 'k': '{- -]π', 'l': '©*+@π', 'm': '∆/.π', 'n': '\\/∆π', 'o': '*o*π', 'p': '$-@π', 'q': '/$\\π', 'r': "' . ' π", 's': '/∆$π', 't': '<-_.>π', 'u': '_ ∆$π', 'v': 'hyπ', 'w': 'nuπ', 'x': 'ocπ', 'y': '$_$π', 'z': '>/_@π', '0': '(/)', '1': '(./)', '2': '(+|)', '3': '(-/)', '4': '(#/)', '5': '(@/)', '6': '(£\\)', '7': '(/\\)', '8': '(</)', '9': '(>/)'};
+        const dom = { in: document.getElementById('inputBox'), out: document.getElementById('outputBox') };
+
+        dom.in.addEventListener('input', () => {
+            const text = dom.in.value;
+            if (!text) { dom.out.value = ""; return; }
+            const isDark = text.includes('π') || /\(\.\/\)/.test(text);
+            dom.out.value = isDark ? translateToEnglish(text) : translateToDark(text);
+        });
+
+        function translateToDark(text) { return text.split('').map(char => cipherData[char] || char).join(''); }
+        function translateToEnglish(text) { 
+            let res = text; 
+            const entries = Object.entries(cipherData).sort((a,b)=>b[1].length - a[1].length);
+            entries.forEach(([eng, dark]) => { 
+                const escaped = dark.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); 
+                res = res.replace(new RegExp(escaped, 'g'), eng); 
+            }); 
+            return res; 
+        }
+
+        // --- PROFESSIONAL STEGANOGRAPHY (LSB) ---
+        let loadedImage = null;
+        const MAX_CAPACITY_BYTES = 100000; // Cap for performance
+
+        function handleImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('previewImg');
+                    img.src = e.target.result;
+                    loadedImage = new Image();
+                    loadedImage.onload = function() {
+                        document.getElementById('previewBox').style.display = 'block';
+                        document.getElementById('dropZone').classList.add('has-file');
+                        document.getElementById('uploadText').innerText = "Image Loaded";
+                        updateCapacity();
+                    };
+                    loadedImage.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function updateCapacity() {
+            if(!loadedImage) return;
+            // 3 pixels per character roughly in strict LSB? No, lets use 1 char = 8 bits.
+            // Algorithm: 1 pixel (R,G,B) = 3 bits. 
+            // Capacity ~ (Width * Height * 3) / 8 bytes.
+            const totalBits = loadedImage.width * loadedImage.height * 3;
+            const maxChars = Math.floor(totalBits / 8) - 100; // Reserve header
+            
+            const currentLen = document.getElementById('stegInput').value.length;
+            const percentage = Math.min((currentLen / maxChars) * 100, 100);
+            
+            document.getElementById('capText').innerText = `${currentLen} / ${maxChars} chars`;
+            document.getElementById('capFill').style.width = percentage + "%";
+            document.getElementById('capBar').style.display = 'block';
+            document.getElementById('capText').style.display = 'block';
+            
+            if(percentage >= 100) document.getElementById('capFill').style.background = 'red';
+            else document.getElementById('capFill').style.background = 'var(--accent)';
+        }
+
+        // Helper: Convert string to binary array
+        function strToBin(str) {
+            let bin = [];
+            for (let i = 0; i < str.length; i++) {
+                let charCode = str.charCodeAt(i);
+                for (let j = 7; j >= 0; j--) {
+                    bin.push((charCode >> j) & 1);
+                }
+            }
+            // Terminator (Null byte)
+            for (let j = 0; j < 8; j++) bin.push(0); 
+            return bin;
+        }
+
+        // Helper: Convert binary array to string
+        function binToStr(bin) {
+            let str = "";
+            for (let i = 0; i < bin.length; i += 8) {
+                let byte = 0;
+                for (let j = 0; j < 8; j++) {
+                    byte = (byte << 1) | bin[i + j];
+                }
+                if (byte === 0) break; // Terminator
+                str += String.fromCharCode(byte);
+            }
+            return str;
+        }
+
+        function encodeLSB() {
+            if (!loadedImage) return showToast("Please upload an image first!");
+            const text = document.getElementById('stegInput').value;
+            if (!text) return showToast("Enter a message to hide!");
+
+            const canvas = document.getElementById('stegCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = loadedImage.width;
+            canvas.height = loadedImage.height;
+            ctx.drawImage(loadedImage, 0, 0);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            const binMsg = strToBin(text);
+
+            if (binMsg.length > (data.length * 0.75)) return showToast("Message too long for this image!");
+
+            let dataIndex = 0;
+            // Loop through binary message bits
+            for (let i = 0; i < binMsg.length; i++) {
+                // Skip Alpha channel (every 4th byte: 3, 7, 11...)
+                if ((dataIndex + 1) % 4 === 0) dataIndex++;
+
+                // LSB Replacement Logic:
+                // Clear last bit: (val & 254)
+                // Add message bit: | bit
+                data[dataIndex] = (data[dataIndex] & 254) | binMsg[i];
+                dataIndex++;
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+
+            // Force Download PNG
+            const link = document.createElement('a');
+            link.download = `spy_img_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast("Encrypted Image Saved!");
+        }
+
+        function decodeLSB() {
+            if (!loadedImage) return showToast("Upload an image to reveal!");
+
+            const canvas = document.getElementById('stegCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = loadedImage.width;
+            canvas.height = loadedImage.height;
+            ctx.drawImage(loadedImage, 0, 0);
+
+            const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+            let extractedBits = [];
+            
+            // Read Bits
+            for (let i = 0; i < data.length; i++) {
+                if ((i + 1) % 4 === 0) continue; // Skip Alpha
+                
+                extractedBits.push(data[i] & 1); // Get LSB
+
+                // Optimization: Check for terminator every 8 bits (byte)
+                // If we have enough bits for at least one char
+                if (extractedBits.length % 8 === 0 && extractedBits.length > 0) {
+                    // Check if last 8 bits were 0 (Null Terminator)
+                    let lastByte = 0;
+                    for(let k=0; k<8; k++) {
+                        lastByte = (lastByte << 1) | extractedBits[extractedBits.length - 8 + k];
+                    }
+                    if(lastByte === 0) break; // Stop reading
+                    
+                    // Safety break to prevent browser crash on random images
+                    if(extractedBits.length > MAX_CAPACITY_BYTES * 8) break; 
+                }
+            }
+
+            const msg = binToStr(extractedBits);
+            
+            // Filter noise: If message looks like garbage (non-printable), alert user
+            if (!/^[\x20-\x7E\s]*$/.test(msg) && msg.length > 10) {
+                // If it looks mostly garbage, it might not be a spy image
+                if (confirm("This image doesn't seem to contain a clean message. Show raw data anyway?")) {
+                    document.getElementById('stegInput').value = msg;
+                } else {
+                    showToast("No hidden message detected.");
+                }
+            } else {
+                document.getElementById('stegInput').value = msg || "No message found.";
+                showToast("Reveal Complete!");
+            }
+        }
+
+        // --- UTILS ---
+        function copyResult() { navigator.clipboard.writeText(dom.out.value); showToast("Copied to Clipboard"); }
+        function pasteText() { navigator.clipboard.readText().then(t => { dom.in.value = t; dom.in.dispatchEvent(new Event('input')); }); }
+        function clearAll() { dom.in.value = ""; dom.out.value = ""; }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+        function toggleModal(id) { 
+            const m = document.getElementById(id); 
+            if(id==='mapModal' && !m.classList.contains('active')) renderMap();
+            m.classList.toggle('active'); 
+        }
+        function renderMap() { const c = document.getElementById('mapContainer'); let h=""; for(let [k,v] of Object.entries(cipherData)) h+=`<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #333;"><span style="color:#888">${k}</span><span style="color:var(--accent)">${v}</span></div>`; c.innerHTML=h; }
+
+        async function social(app) {
+            const val = dom.out.value;
+            if(!val) return showToast("Translate something first");
+            await navigator.clipboard.writeText(val);
+            if(confirm("Translation copied! Open Instagram?")) window.open('https://instagram.com/direct/inbox');
+        }
+    </script>
+</body>
+</html>
